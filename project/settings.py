@@ -5,16 +5,16 @@ from environs import Env
 env = Env()
 env.read_env()
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
-SECRET_KEY = env.str('SECRET_KEY', 'REPLACE_ME')
+SECRET_KEY = env.str('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG', True)
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.getenv('DATABASE_NAME', 'schoolbase.sqlite3'),
+        'NAME': env.str('DATABASE_NAME'),
     }
 }
 
