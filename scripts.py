@@ -3,14 +3,13 @@ from datacenter.models import Schoolkid, Mark, Chastisement, Lesson, Commendatio
 
 
 def find_schoolkid_by_name(schoolkid_name):
-    schoolkids = Schoolkid.objects.filter(full_name__contains=schoolkid_name)
-    if len(schoolkids) == 1:
-        return schoolkids[0]
-    elif len(schoolkids) == 0:
+    try:
+        return Schoolkid.objects.get(full_name__contains=schoolkid_name)
+    except Schoolkid.DoesNotExist:
         print(f'Не удалось найти ученика с именем {schoolkid_name}')
         return False
-    elif len(schoolkids) > 1:
-        full_names = [kid.full_name for kid in schoolkids]
+    except Schoolkid.MultipleObjectsReturned:
+        full_names = [kid.full_name for kid in Schoolkid.objects.filter(full_name__contains=schoolkid_name)]
         print(f'Нашлось больше одного ученика: {full_names}')
         return False
 
@@ -51,3 +50,4 @@ def create_commendation(schoolkid_name, subject_name):
             lessons = lessons.values('subject__title').distinct()
             lessons_names = [[lesson[i] for i in lesson][0] for lesson in lessons if lesson]
             print(f'Вот полный список предметов для {schoolkid.full_name}:\n{lessons_names}')
+
