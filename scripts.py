@@ -1,5 +1,5 @@
 import random
-from datacenter.models import Schoolkid, Mark, Chastisement, Lesson, Commendation
+from datacenter.models import Schoolkid, Mark, Chastisement, Lesson, Commendation, Subject
 
 
 def find_schoolkid_by_name(schoolkid_name):
@@ -14,11 +14,15 @@ def find_schoolkid_by_name(schoolkid_name):
         return False
 
 
+def fix_marks_on_five(schoolkid_name):
+    schoolkid = find_schoolkid_by_name(schoolkid_name)
+    Mark.objects.filter(schoolkid=schoolkid, points__in=[2, 3]).update(points=5)
+
+
 def fix_marks(schoolkid_name):
     schoolkid = find_schoolkid_by_name(schoolkid_name)
     bad_marks = Mark.objects.filter(schoolkid=schoolkid, points__in=[2, 3])
-    for bad_mark_from_filter in bad_marks:
-        bad_mark = Mark.objects.get(pk=bad_mark_from_filter.pk)
+    for bad_mark in bad_marks:
         bad_mark.points = random.choice([4, 5])
         bad_mark.save()
 
@@ -42,9 +46,7 @@ def create_commendation(schoolkid_name, subject_name):
                                     teacher=lesson.teacher)
     else:
         print(f'Предмета с названием "{subject_name}" у ученика {schoolkid.full_name} не удалось найти!')
-        lessons = Lesson.objects.select_related('subject').filter(year_of_study=schoolkid.year_of_study,
-                                                                  group_letter=schoolkid.group_letter)
-        lessons = lessons.values('subject__title').distinct()
-        lessons_names = [[lesson[i] for i in lesson][0] for lesson in lessons if lesson]
+        subjects = Subject.objects.filter(year_of_study=schoolkid.year_of_study)
+        lessons_names = ', '.join([subject.title for subject in subjects])
         print(f'Вот полный список предметов для {schoolkid.full_name}:\n{lessons_names}')
 
