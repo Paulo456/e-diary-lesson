@@ -38,15 +38,17 @@ def create_commendation(schoolkid_name, subject_name):
     kid_lessons_on_subject = Lesson.objects.filter(year_of_study=schoolkid.year_of_study,
                                                    group_letter=schoolkid.group_letter,
                                                    subject__title=subject_name)
-    if kid_lessons_on_subject:
-        choice_list = ['Молодец!', 'Отлично!', 'Хорошо!', 'Гораздо лучше, чем я ожидал!']
-        text = random.choice(choice_list)
-        lesson = random.choice(kid_lessons_on_subject)
-        Commendation.objects.create(text=text, created=lesson.date, schoolkid=schoolkid, subject=lesson.subject,
-                                    teacher=lesson.teacher)
-    else:
+
+    if not kid_lessons_on_subject:
         print(f'Предмета с названием "{subject_name}" у ученика {schoolkid.full_name} не удалось найти!')
         subjects = Subject.objects.filter(year_of_study=schoolkid.year_of_study)
-        lessons_names = ', '.join([subject.title for subject in subjects])
-        print(f'Вот полный список предметов для {schoolkid.full_name}:\n{lessons_names}')
+        subjects_names = ', '.join([subject.title for subject in subjects])
+        print(f'Вот полный список предметов для {schoolkid.full_name}:\n{subjects_names}')
+        return None
+
+    choice_list = ['Молодец!', 'Отлично!', 'Хорошо!', 'Гораздо лучше, чем я ожидал!']
+    text = random.choice(choice_list)
+    lesson = random.choice(kid_lessons_on_subject)
+    Commendation.objects.create(text=text, created=lesson.date, schoolkid=schoolkid, subject=lesson.subject,
+                                teacher=lesson.teacher)
 
